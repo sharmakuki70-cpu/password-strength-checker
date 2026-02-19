@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Cybersecurity Password Strength Checker</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: black;
+            color: #00ff66;
+            overflow: hidden;
+        }
+
+        /* FULL SCREEN MATRIX CANVAS */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: rgba(0, 20, 0, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            width: 600px;
+            box-shadow: 0 0 30px #00ff66;
+            border: 1px solid #00ff66;
+        }
+
+        h1 {
+            text-align: center;
+            text-shadow: 0 0 15px #00ff66;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: 2px solid #00ff66;
+            background: black;
+            color: #00ff66;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .strength-container {
+            width: 100%;
+            height: 15px;
+            background: #003300;
+            border-radius: 20px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 20px;
+            transition: 0.5s;
+        }
+
+        .text {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-top: 25px;
+            background: #001a00;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #00ff66;
+        }
+
+        ul {
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="container">
+<div class="card">
+
+    <h1>🔐 Cybersecurity Password Analyzer</h1>
+
+    <input type="password" id="password" placeholder="Enter Secure Password" onkeyup="checkStrength()">
+
+    <div class="strength-container">
+        <div id="bar" class="strength-bar"></div>
+    </div>
+
+    <div id="message" class="text"></div>
+
+    <div id="suggestions" class="section"></div>
+
+    <div class="section">
+        <h3>🛡 Cybersecurity Overview</h3>
+        <p>
+        Cybersecurity protects systems from hacking, phishing,
+        ransomware, brute-force attacks and malware.
+        Strong passwords are your first line of defense.
+        </p>
+    </div>
+
+</div>
+</div>
+
+<script>
+/* FULL SCREEN MATRIX EFFECT */
+
+var canvas = document.getElementById("matrix");
+var ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+var letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@%&";
+letters = letters.split("");
+
+var fontSize = 14;
+var columns = canvas.width / fontSize;
+var drops = [];
+
+function initDrops() {
+    columns = canvas.width / fontSize;
+    drops = [];
+    for (var x = 0; x < columns; x++)
+        drops[x] = 1;
+}
+initDrops();
+
+window.addEventListener("resize", initDrops);
+
+function draw() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#00ff66";
+    ctx.font = fontSize + "px monospace";
+
+    for (var i = 0; i < drops.length; i++) {
+        var text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+            drops[i] = 0;
+
+        drops[i]++;
+    }
+}
+
+setInterval(draw, 35);
+
+/* PASSWORD CHECKER */
+
+function checkStrength() {
+    let password = document.getElementById("password").value;
+    let bar = document.getElementById("bar");
+    let message = document.getElementById("message");
+    let suggestions = document.getElementById("suggestions");
+
+    let strength = 0;
+    let tips = [];
+
+    if (password.length >= 12) strength++;
+    else tips.push("• Use at least 12 characters");
+
+    if (password.match(/[a-z]/)) strength++;
+    else tips.push("• Add lowercase letters");
+
+    if (password.match(/[A-Z]/)) strength++;
+    else tips.push("• Add uppercase letters");
+
+    if (password.match(/[0-9]/)) strength++;
+    else tips.push("• Add numbers");
+
+    if (password.match(/[@#$%^&*!]/)) strength++;
+    else tips.push("• Add special characters");
+
+    if (strength <= 2) {
+        bar.style.width = "33%";
+        bar.style.background = "#ff0000";
+        message.innerHTML = "⚠ Weak Password";
+        message.style.color = "#ff4444";
+    }
+    else if (strength <= 4) {
+        bar.style.width = "66%";
+        bar.style.background = "#cccc00";
+        message.innerHTML = "⚡ Medium Strength";
+        message.style.color = "#cccc00";
+    }
+    else {
+        bar.style.width = "100%";
+        bar.style.background = "#00ff66";
+        message.innerHTML = "🔐 Strong & Secure Password";
+        message.style.color = "#00ff66";
+    }
+
+    if (tips.length > 0) {
+        suggestions.innerHTML = "<h3>Improve Security:</h3>" + tips.join("<br>");
+    } else {
+        suggestions.innerHTML = "<h3>Excellent! Your password is highly secure.</h3>";
+    }
+}
+</script>
+
+</body>
+</html>
